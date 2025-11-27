@@ -99,7 +99,9 @@ export function DisputeList({
       render: (dispute) => (
         <div className="text-sm">
           <div className="font-medium text-gray-900">
-            {dispute.reporter?.name || 'Unknown'}
+            {dispute.reporter?.nombre ||
+             dispute.reporter?.name ||
+             (dispute.reporter?.email ? dispute.reporter.email.split('@')[0] : 'Unknown')}
           </div>
           <div className="text-gray-500">{dispute.reporter?.email}</div>
         </div>
@@ -113,7 +115,9 @@ export function DisputeList({
           return (
             <div className="text-sm">
               <div className="font-medium text-gray-900">
-                {dispute.reported_user.name}
+                {dispute.reported_user.nombre ||
+                 dispute.reported_user.name ||
+                 (dispute.reported_user.email ? dispute.reported_user.email.split('@')[0] : 'Unknown')}
               </div>
               <div className="text-gray-500">{dispute.reported_user.email}</div>
             </div>
@@ -123,7 +127,7 @@ export function DisputeList({
           return (
             <div className="text-sm">
               <div className="font-medium text-gray-900">
-                Team: {dispute.reported_team.name}
+                Team: {dispute.reported_team.name || dispute.reported_team.nombre || 'Unknown team'}
               </div>
             </div>
           );

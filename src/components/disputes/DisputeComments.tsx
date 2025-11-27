@@ -95,33 +95,47 @@ export function DisputeComments({ comments, loading = false }: DisputeCommentsPr
 
                     {/* Content */}
                     <div className="min-w-0 flex-1">
-                      <div>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <p className="text-sm font-medium text-gray-900">
-                              {comment.user?.name || 'Unknown User'}
-                            </p>
-                            {comment.user?.is_admin && (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
-                                Admin
-                              </span>
-                            )}
-                            {comment.is_internal && (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
-                                Internal
-                              </span>
+                      {(() => {
+                        const displayName =
+                          comment.display_name ||
+                          comment.user?.name ||
+                          comment.user?.nombre ||
+                          (comment.user?.email
+                            ? comment.user.email.split('@')[0]
+                            : null) ||
+                          (comment.user_id
+                            ? `User ${comment.user_id.slice(0, 8)}`
+                            : 'System');
+                        return (
+                          <div>
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <p className="text-sm font-medium text-gray-900">
+                                  {displayName}
+                                </p>
+                                {comment.user?.is_admin && (
+                                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    Admin
+                                  </span>
+                                )}
+                                {comment.is_internal && (
+                                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                                    Internal
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-sm text-gray-500">
+                                {formatDate(comment.created_at)}
+                              </p>
+                            </div>
+                            {comment.user?.email && (
+                              <p className="text-xs text-gray-500 mt-0.5">
+                                {comment.user.email}
+                              </p>
                             )}
                           </div>
-                          <p className="text-sm text-gray-500">
-                            {formatDate(comment.created_at)}
-                          </p>
-                        </div>
-                        {comment.user?.email && (
-                          <p className="text-xs text-gray-500 mt-0.5">
-                            {comment.user.email}
-                          </p>
-                        )}
-                      </div>
+                        );
+                      })()}
                       <div className="mt-2 text-sm text-gray-700">
                         <p className="whitespace-pre-wrap">{comment.comment}</p>
                       </div>

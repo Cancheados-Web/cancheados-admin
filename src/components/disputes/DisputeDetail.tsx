@@ -77,8 +77,12 @@ export function DisputeDetail({ dispute }: DisputeDetailProps) {
               <h3 className="text-sm font-medium text-gray-700 mb-2">Reporter</h3>
               {dispute.reporter ? (
                 <div className="text-sm">
-                  <p className="font-medium text-gray-900">{dispute.reporter.name}</p>
-                  <p className="text-gray-500">{dispute.reporter.email}</p>
+                  <p className="font-medium text-gray-900">
+                    {dispute.reporter.nombre || dispute.reporter.name || (dispute.reporter.email ? dispute.reporter.email.split('@')[0] : 'Unknown')}
+                  </p>
+                  {dispute.reporter.email && (
+                    <p className="text-gray-500">{dispute.reporter.email}</p>
+                  )}
                   <p className="text-gray-500">ID: {dispute.reporter_id}</p>
                 </div>
               ) : (
@@ -91,13 +95,17 @@ export function DisputeDetail({ dispute }: DisputeDetailProps) {
               <h3 className="text-sm font-medium text-gray-700 mb-2">Reported Party</h3>
               {dispute.reported_user ? (
                 <div className="text-sm">
-                  <p className="font-medium text-gray-900">{dispute.reported_user.name}</p>
-                  <p className="text-gray-500">{dispute.reported_user.email}</p>
+                  <p className="font-medium text-gray-900">
+                    {dispute.reported_user.nombre || dispute.reported_user.name || (dispute.reported_user.email ? dispute.reported_user.email.split('@')[0] : 'Unknown')}
+                  </p>
+                  {dispute.reported_user.email && (
+                    <p className="text-gray-500">{dispute.reported_user.email}</p>
+                  )}
                   <p className="text-gray-500">User ID: {dispute.reported_user_id}</p>
                 </div>
               ) : dispute.reported_team ? (
                 <div className="text-sm">
-                  <p className="font-medium text-gray-900">Team: {dispute.reported_team.name}</p>
+                  <p className="font-medium text-gray-900">Team: {dispute.reported_team.name || dispute.reported_team.nombre || 'Unknown team'}</p>
                   <p className="text-gray-500">Team ID: {dispute.reported_team_id}</p>
                 </div>
               ) : (
