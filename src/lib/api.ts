@@ -132,9 +132,12 @@ export const authApi = {
     const response = await api.post<LoginResponse>('/api/auth/login', credentials);
     
     // Store token and user info
-    if (response.data.token) {
-      tokenManager.setToken(response.data.token);
-      tokenManager.setUser(response.data.user);
+    const token = (response.data as any).token || (response.data as any).tokens?.accessToken;
+    if (token) {
+      tokenManager.setToken(token);
+    }
+    if ((response.data as any).user) {
+      tokenManager.setUser((response.data as any).user);
     }
     
     return response.data;
