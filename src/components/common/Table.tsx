@@ -103,7 +103,7 @@ export function Table<T extends { id: number | string }>({
                 <th
                   key={column.key}
                   scope="col"
-                  className={`px-6 py-3 text-${column.align || 'left'} text-xs font-medium text-gray-500 uppercase tracking-wider ${
+                  className={`px-6 py-3 text-${column.align || 'left'} text-xs font-medium text-gray-700 uppercase tracking-wider ${
                     column.sortable && onSort ? 'cursor-pointer hover:bg-gray-100' : ''
                   }`}
                   style={{ width: column.width }}
@@ -123,7 +123,7 @@ export function Table<T extends { id: number | string }>({
                 {columns.map((column) => (
                   <td
                     key={column.key}
-                    className={`px-6 py-4 whitespace-nowrap text-sm text-${column.align || 'left'}`}
+                    className={`px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-${column.align || 'left'}`}
                   >
                     {column.render(item)}
                   </td>

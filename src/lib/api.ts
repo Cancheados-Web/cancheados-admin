@@ -199,3 +199,8 @@ export type { User, LoginCredentials, LoginResponse, ApiError };
 // Export api instance with multiple names for compatibility
 export { api as apiClient };
 export default api;
+
+// Export new API modules
+export { usersApi } from './api/users';
+export { teamsApi } from './api/teams';
+export { disputesApi } from './api/disputes';

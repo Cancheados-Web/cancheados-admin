@@ -1,89 +1,68 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { usersApi } from '../lib/api';
-import type { User, UserFilters, UserStatus } from '../lib/types/users';
-import { getUserStatus, USER_STATUS_CONFIG } from '../lib/types/users';
+import { teamsApi } from '../lib/api';
+import type { Team, TeamFilters } from '../lib/types/teams';
+import { getTeamStatus, TEAM_STATUS_CONFIG } from '../lib/types/teams';
 import { Table } from '../components/common/Table';
 import { Pagination } from '../components/common/Pagination';
 import Badge from '../components/common/Badge';
 
-export default function UsersPage() {
+export default function TeamsPage() {
   const queryClient = useQueryClient();
-  const [filters, setFilters] = useState<UserFilters>({
+  const [filters, setFilters] = useState<TeamFilters>({
     limit: 50,
     offset: 0,
   });
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [actionModal, setActionModal] = useState<{
-    type: 'suspend' | 'activate' | 'delete' | null;
-    user: User | null;
-  }>({ type: null, user: null });
+    type: 'suspend' | 'activate' | null;
+    team: Team | null;
+  }>({ type: null, team: null });
   const [actionReason, setActionReason] = useState('');
 
-  // Fetch users
-  const { data: usersData, isLoading } = useQuery({
-    queryKey: ['users', filters],
-    queryFn: () => usersApi.getUsers(filters),
+  // Fetch teams
+  const { data: teamsData, isLoading } = useQuery({
+    queryKey: ['teams', filters],
+    queryFn: () => teamsApi.getTeams(filters),
   });
 
   // Mutations
   const suspendMutation = useMutation({
     mutationFn: ({ id, reason }: { id: string; reason: string }) =>
-      usersApi.suspendUser(id, { reason }),
+      teamsApi.suspendTeam(id, { reason }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['users'] });
-      setActionModal({ type: null, user: null });
+      queryClient.invalidateQueries({ queryKey: ['teams'] });
+      setActionModal({ type: null, team: null });
       setActionReason('');
-      alert('User suspended successfully');
+      alert('Team suspended successfully');
     },
     onError: (error: any) => {
-      alert(`Failed to suspend user: ${error.message}`);
+      alert(`Failed to suspend team: ${error.message}`);
     },
   });
 
   const activateMutation = useMutation({
-    mutationFn: (id: string) => usersApi.activateUser(id),
+    mutationFn: (id: string) => teamsApi.activateTeam(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['users'] });
-      setActionModal({ type: null, user: null });
-      alert('User activated successfully');
+      queryClient.invalidateQueries({ queryKey: ['teams'] });
+      setActionModal({ type: null, team: null });
+      alert('Team activated successfully');
     },
     onError: (error: any) => {
-      alert(`Failed to activate user: ${error.message}`);
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: ({ id, reason }: { id: string; reason: string }) =>
-      usersApi.deleteUser(id, { reason }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['users'] });
-      setActionModal({ type: null, user: null });
-      setActionReason('');
-      alert('User deleted successfully');
-    },
-    onError: (error: any) => {
-      alert(`Failed to delete user: ${error.message}`);
+      alert(`Failed to activate team: ${error.message}`);
     },
   });
 
   const handleAction = () => {
-    if (!actionModal.user || !actionModal.type) return;
+    if (!actionModal.team || !actionModal.type) return;
 
     if (actionModal.type === 'suspend') {
       if (!actionReason.trim()) {
         alert('Please provide a reason for suspension');
         return;
       }
-      suspendMutation.mutate({ id: actionModal.user.id, reason: actionReason });
+      suspendMutation.mutate({ id: actionModal.team.id, reason: actionReason });
     } else if (actionModal.type === 'activate') {
-      activateMutation.mutate(actionModal.user.id);
-    } else if (actionModal.type === 'delete') {
-      if (!actionReason.trim()) {
-        alert('Please provide a reason for deletion');
-        return;
-      }
-      deleteMutation.mutate({ id: actionModal.user.id, reason: actionReason });
+      activateMutation.mutate(actionModal.team.id);
     }
   };
 
@@ -98,74 +77,61 @@ export default function UsersPage() {
     {
       key: 'id',
       header: 'ID',
-      render: (user: User) => (
-        <span className="font-mono text-xs">{user.id.substring(0, 8)}...</span>
+      render: (team: Team) => (
+        <span className="font-mono text-xs">{team.id.substring(0, 8)}...</span>
       ),
     },
     {
       key: 'nombre',
-      header: 'Name',
-      render: (user: User) => (
+      header: 'Team Name',
+      render: (team: Team) => (
         <div>
-          <div className="font-medium">{user.nombre}</div>
-          <div className="text-sm text-gray-500">{user.email}</div>
+          <div className="font-medium">{team.nombre}</div>
+          <div className="text-sm text-gray-500">Zone: {team.zona}</div>
         </div>
       ),
     },
     {
-      key: 'telefono',
-      header: 'Phone',
-      render: (user: User) => user.telefono || '-',
+      key: 'capitan',
+      header: 'Captain',
+      render: (team: Team) => (
+        <div>
+          <div className="font-medium">{team.capitan.nombre}</div>
+          <div className="text-sm text-gray-500">{team.capitan.email}</div>
+        </div>
+      ),
+    },
+    {
+      key: 'members_count',
+      header: 'Members',
+      render: (team: Team) => (
+        <span className="font-semibold">{team.members_count || 0}</span>
+      ),
     },
     {
       key: 'status',
       header: 'Status',
-      render: (user: User) => {
-        const status = getUserStatus(user);
-        const config = USER_STATUS_CONFIG[status];
+      render: (team: Team) => {
+        const status = getTeamStatus(team);
+        const config = TEAM_STATUS_CONFIG[status];
         return <Badge color={config.color}>{config.label}</Badge>;
       },
     },
     {
-      key: 'is_admin',
-      header: 'Admin',
-      render: (user: User) =>
-        user.is_admin ? (
-          <Badge color="purple">Admin</Badge>
-        ) : (
-          <span className="text-gray-400">-</span>
-        ),
-    },
-    {
-      key: 'teams_count',
-      header: 'Teams',
-      render: (user: User) => user.teams_count || 0,
-    },
-    {
-      key: 'disputes',
-      header: 'Disputes',
-      render: (user: User) => (
-        <div className="text-sm">
-          <div className="text-green-600">Filed: {user.disputes_filed || 0}</div>
-          <div className="text-red-600">Against: {user.disputes_against || 0}</div>
-        </div>
-      ),
-    },
-    {
       key: 'created_at',
       header: 'Created',
-      render: (user: User) => new Date(user.created_at).toLocaleDateString(),
+      render: (team: Team) => new Date(team.created_at).toLocaleDateString(),
     },
     {
       key: 'actions',
       header: 'Actions',
-      render: (user: User) => {
-        const status = getUserStatus(user);
+      render: (team: Team) => {
+        const status = getTeamStatus(team);
         return (
           <div className="flex gap-2">
             {status === 'active' && (
               <button
-                onClick={() => setActionModal({ type: 'suspend', user })}
+                onClick={() => setActionModal({ type: 'suspend', team })}
                 className="text-sm text-red-600 hover:text-red-800"
               >
                 Suspend
@@ -173,18 +139,10 @@ export default function UsersPage() {
             )}
             {status === 'suspended' && (
               <button
-                onClick={() => setActionModal({ type: 'activate', user })}
+                onClick={() => setActionModal({ type: 'activate', team })}
                 className="text-sm text-green-600 hover:text-green-800"
               >
                 Activate
-              </button>
-            )}
-            {status !== 'deleted' && (
-              <button
-                onClick={() => setActionModal({ type: 'delete', user })}
-                className="text-sm text-gray-600 hover:text-gray-800"
-              >
-                Delete
               </button>
             )}
           </div>
@@ -194,12 +152,12 @@ export default function UsersPage() {
   ];
 
   const currentPage = Math.floor((filters.offset || 0) / (filters.limit || 50)) + 1;
-  const totalPages = Math.ceil((usersData?.total || 0) / (filters.limit || 50));
+  const totalPages = Math.ceil((teamsData?.total || 0) / (filters.limit || 50));
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-900">Users Management</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Teams Management</h1>
       </div>
 
       {/* Filters */}
@@ -211,7 +169,7 @@ export default function UsersPage() {
             </label>
             <input
               type="text"
-              placeholder="Name or email..."
+              placeholder="Team name..."
               value={filters.search || ''}
               onChange={(e) =>
                 setFilters((prev) => ({ ...prev, search: e.target.value, offset: 0 }))
@@ -221,50 +179,50 @@ export default function UsersPage() {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Status
+              Zone
             </label>
             <select
-              value={filters.status || ''}
+              value={filters.zona || ''}
               onChange={(e) =>
                 setFilters((prev) => ({
                   ...prev,
-                  status: e.target.value as UserStatus | undefined,
+                  zona: e.target.value || undefined,
                   offset: 0,
                 }))
               }
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
             >
-              <option value="">All Statuses</option>
-              <option value="active">Active</option>
-              <option value="suspended">Suspended</option>
-              <option value="deleted">Deleted</option>
+              <option value="">All Zones</option>
+              <option value="Norte">Norte</option>
+              <option value="Sur">Sur</option>
+              <option value="Este">Este</option>
+              <option value="Oeste">Oeste</option>
+              <option value="Centro">Centro</option>
             </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Admin
+              Status
             </label>
             <select
-              value={filters.is_admin === undefined ? '' : filters.is_admin.toString()}
+              value={filters.suspended === undefined ? '' : filters.suspended.toString()}
               onChange={(e) =>
                 setFilters((prev) => ({
                   ...prev,
-                  is_admin: e.target.value === '' ? undefined : e.target.value === 'true',
+                  suspended: e.target.value === '' ? undefined : e.target.value === 'true',
                   offset: 0,
                 }))
               }
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
             >
-              <option value="">All Users</option>
-              <option value="true">Admins Only</option>
-              <option value="false">Non-Admins Only</option>
+              <option value="">All Teams</option>
+              <option value="false">Active Only</option>
+              <option value="true">Suspended Only</option>
             </select>
           </div>
           <div className="flex items-end">
             <button
-              onClick={() =>
-                setFilters({ limit: 50, offset: 0 })
-              }
+              onClick={() => setFilters({ limit: 50, offset: 0 })}
               className="w-full px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
             >
               Clear Filters
@@ -273,13 +231,13 @@ export default function UsersPage() {
         </div>
       </div>
 
-      {/* Users Table */}
+      {/* Teams Table */}
       <div className="bg-white rounded-lg shadow">
         {isLoading ? (
-          <div className="p-8 text-center text-gray-500">Loading users...</div>
+          <div className="p-8 text-center text-gray-500">Loading teams...</div>
         ) : (
           <>
-            <Table columns={columns} data={usersData?.users || []} />
+            <Table columns={columns} data={teamsData?.teams || []} />
             {totalPages > 1 && (
               <div className="p-4 border-t">
                 <Pagination
@@ -294,23 +252,20 @@ export default function UsersPage() {
       </div>
 
       {/* Action Modal */}
-      {actionModal.type && actionModal.user && (
+      {actionModal.type && actionModal.team && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
             <h3 className="text-lg font-semibold mb-4">
-              {actionModal.type === 'suspend' && 'Suspend User'}
-              {actionModal.type === 'activate' && 'Activate User'}
-              {actionModal.type === 'delete' && 'Delete User'}
+              {actionModal.type === 'suspend' && 'Suspend Team'}
+              {actionModal.type === 'activate' && 'Activate Team'}
             </h3>
             <p className="text-gray-600 mb-4">
               {actionModal.type === 'suspend' &&
-                `Are you sure you want to suspend ${actionModal.user.nombre}?`}
+                `Are you sure you want to suspend ${actionModal.team.nombre}?`}
               {actionModal.type === 'activate' &&
-                `Are you sure you want to activate ${actionModal.user.nombre}?`}
-              {actionModal.type === 'delete' &&
-                `Are you sure you want to delete ${actionModal.user.nombre}? This action cannot be undone.`}
+                `Are you sure you want to activate ${actionModal.team.nombre}?`}
             </p>
-            {(actionModal.type === 'suspend' || actionModal.type === 'delete') && (
+            {actionModal.type === 'suspend' && (
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Reason *
@@ -327,7 +282,7 @@ export default function UsersPage() {
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => {
-                  setActionModal({ type: null, user: null });
+                  setActionModal({ type: null, team: null });
                   setActionReason('');
                 }}
                 className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
@@ -336,22 +291,14 @@ export default function UsersPage() {
               </button>
               <button
                 onClick={handleAction}
-                disabled={
-                  suspendMutation.isPending ||
-                  activateMutation.isPending ||
-                  deleteMutation.isPending
-                }
+                disabled={suspendMutation.isPending || activateMutation.isPending}
                 className={`px-4 py-2 text-white rounded-md ${
-                  actionModal.type === 'delete'
-                    ? 'bg-red-600 hover:bg-red-700'
-                    : actionModal.type === 'suspend'
+                  actionModal.type === 'suspend'
                     ? 'bg-orange-600 hover:bg-orange-700'
                     : 'bg-green-600 hover:bg-green-700'
                 } disabled:opacity-50`}
               >
-                {suspendMutation.isPending ||
-                activateMutation.isPending ||
-                deleteMutation.isPending
+                {suspendMutation.isPending || activateMutation.isPending
                   ? 'Processing...'
                   : 'Confirm'}
               </button>
