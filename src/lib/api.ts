@@ -204,3 +204,4 @@ export default api;
 export { usersApi } from './api/users';
 export { teamsApi } from './api/teams';
 export { disputesApi } from './api/disputes';
+export { venuesApi } from './api/venues';

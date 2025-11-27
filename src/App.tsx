@@ -7,6 +7,7 @@ import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import UsersPage from './pages/UsersPage';
 import TeamsPage from './pages/TeamsPage';
+import VenuesPage from './pages/VenuesPage';
 import DisputesPage from './pages/DisputesPage';
 import DisputeDetailPage from './pages/DisputeDetailPage';
 
@@ -57,6 +58,16 @@ function App() {
                 <ProtectedRoute>
                   <Layout>
                     <TeamsPage />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/venues"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <VenuesPage />
                   </Layout>
                 </ProtectedRoute>
               }
