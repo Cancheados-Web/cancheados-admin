@@ -54,46 +54,49 @@ export type DisputeResolutionOutcome =
  * Main Dispute entity
  */
 export interface Dispute {
-  id: number;
-  match_id: number;
-  reporter_id: number;
-  reported_user_id: number | null;
-  reported_team_id: number | null;
+  id: string;
+  match_id: string | null;
+  reporter_id: string | null;
+  reported_user_id: string | null;
+  reported_team_id: string | null;
   dispute_type: DisputeType;
   status: DisputeStatus;
   priority: DisputePriority | null;
   description: string;
   admin_notes: string | null;
   resolution: string | null;
-  resolution_outcome: DisputeResolutionOutcome | null;
-  resolved_by: number | null;
+  resolution_outcome?: DisputeResolutionOutcome | null;
+  resolved_by: string | null;
   resolved_at: string | null;
   created_at: string;
   updated_at: string;
   
   // Populated relations (when included in response)
   reporter?: {
-    id: number;
-    name: string;
+    id: string;
+    name?: string;
+    nombre?: string;
     email: string;
   };
   reported_user?: {
-    id: number;
-    name: string;
+    id: string;
+    name?: string;
+    nombre?: string;
     email: string;
   } | null;
   reported_team?: {
-    id: number;
-    name: string;
+    id: string;
+    name?: string;
   } | null;
   match?: {
-    id: number;
+    id: string;
     date: string;
     venue_name: string;
   };
   resolver?: {
-    id: number;
-    name: string;
+    id: string;
+    name?: string;
+    nombre?: string;
     email: string;
   } | null;
 }
@@ -102,17 +105,18 @@ export interface Dispute {
  * Dispute evidence/attachment
  */
 export interface DisputeEvidence {
-  id: number;
-  dispute_id: number;
+  id: string;
+  dispute_id: string;
   file_url: string;
-  file_type: string;
-  uploaded_by: number;
-  uploaded_at: string;
+  file_type?: string;
+  uploaded_by: string;
+  uploaded_at?: string;
   
   // Populated relations
   uploader?: {
-    id: number;
-    name: string;
+    id: string;
+    name?: string;
+    nombre?: string;
   };
 }
 
@@ -120,17 +124,19 @@ export interface DisputeEvidence {
  * Dispute comment/activity
  */
 export interface DisputeComment {
-  id: number;
-  dispute_id: number;
-  user_id: number;
+  id: string;
+  dispute_id: string;
+  user_id: string | null;
   comment: string;
   is_internal: boolean;
   created_at: string;
+  display_name?: string;
   
   // Populated relations
   user?: {
-    id: number;
-    name: string;
+    id: string;
+    name?: string;
+    nombre?: string;
     email: string;
     is_admin: boolean;
   };

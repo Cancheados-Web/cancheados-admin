@@ -115,9 +115,9 @@ export async function getDisputesResolved(
  * ```
  */
 export async function getDisputeById(
-  disputeId: number
-): Promise<DisputeDetailResponse> {
-  const response = await apiClient.get<DisputeDetailResponse>(
+  disputeId: string
+): Promise<Dispute> {
+  const response = await apiClient.get<Dispute>(
     `/api/disputes/${disputeId}`
   );
   return response.data;
@@ -135,12 +135,23 @@ export async function getDisputeById(
  * ```
  */
 export async function getDisputeEvidence(
-  disputeId: number
+  disputeId: string
 ): Promise<DisputeEvidence[]> {
-  const response = await apiClient.get<{ evidence: DisputeEvidence[] }>(
+  const response = await apiClient.get<DisputeEvidence[] | { evidence: DisputeEvidence[] }>(
     `/api/disputes/${disputeId}/evidence`
   );
-  return response.data.evidence;
+  const raw = Array.isArray(response.data) ? response.data : response.data.evidence || [];
+  return raw.map((item) => ({
+    ...item,
+    id: String(item.id),
+    dispute_id: String(item.dispute_id),
+    uploader: item.uploader
+      ? {
+          ...item.uploader,
+          name: item.uploader.nombre || item.uploader.name,
+        }
+      : undefined,
+  }));
 }
 
 /**
@@ -155,12 +166,29 @@ export async function getDisputeEvidence(
  * ```
  */
 export async function getDisputeComments(
-  disputeId: number
+  disputeId: string
 ): Promise<DisputeComment[]> {
-  const response = await apiClient.get<{ comments: DisputeComment[] }>(
+  const response = await apiClient.get<DisputeComment[] | { comments: DisputeComment[] }>(
     `/api/disputes/${disputeId}/comments`
   );
-  return response.data.comments;
+  const raw = Array.isArray(response.data) ? response.data : response.data.comments || [];
+  return raw.map((comment) => ({
+    ...comment,
+    id: String(comment.id),
+    dispute_id: String(comment.dispute_id),
+    user_id: comment.user_id ? String(comment.user_id) : null,
+    user: comment.user
+      ? {
+          ...comment.user,
+          name: comment.user.nombre || comment.user.name || comment.user.email?.split('@')[0] || 'Unknown User',
+        }
+      : undefined,
+    display_name:
+      comment.user?.nombre ||
+      comment.user?.name ||
+      (comment.user?.email ? comment.user.email.split('@')[0] : undefined) ||
+      (comment.user_id ? `User ${String(comment.user_id).slice(0, 8)}` : undefined),
+  }));
 }
 
 // ============================================================================
@@ -185,7 +213,7 @@ export async function getDisputeComments(
  * ```
  */
 export async function reviewDispute(
-  disputeId: number,
+  disputeId: string,
   data: ReviewDisputeRequest
 ): Promise<DisputeActionResponse> {
   const response = await apiClient.post<DisputeActionResponse>(
@@ -214,7 +242,7 @@ export async function reviewDispute(
  * ```
  */
 export async function resolveDispute(
-  disputeId: number,
+  disputeId: string,
   data: ResolveDisputeRequest
 ): Promise<DisputeActionResponse> {
   const response = await apiClient.post<DisputeActionResponse>(
@@ -242,7 +270,7 @@ export async function resolveDispute(
  * ```
  */
 export async function requestDisputeInfo(
-  disputeId: number,
+  disputeId: string,
   data: RequestDisputeInfoRequest
 ): Promise<DisputeActionResponse> {
   const response = await apiClient.post<DisputeActionResponse>(
