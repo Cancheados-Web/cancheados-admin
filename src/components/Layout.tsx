@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 interface LayoutProps {
   children: ReactNode;
@@ -7,9 +8,19 @@ interface LayoutProps {
 
 export default function Layout({ children }: LayoutProps) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
   const isActive = (path: string) => {
+    if (path === '/disputes') {
+      return location.pathname.startsWith('/disputes');
+    }
     return location.pathname === path;
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
   };
 
   return (
@@ -25,6 +36,16 @@ export default function Layout({ children }: LayoutProps) {
                 </h1>
               </div>
               <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
+                <Link
+                  to="/disputes"
+                  className={`${
+                    isActive('/disputes')
+                      ? 'border-indigo-500 text-gray-900'
+                      : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                  } inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
+                >
+                  Disputes
+                </Link>
                 <Link
                   to="/"
                   className={`${
@@ -47,12 +68,29 @@ export default function Layout({ children }: LayoutProps) {
                 </Link>
               </div>
             </div>
+            
+            {/* User menu */}
+            <div className="flex items-center">
+              <div className="flex items-center space-x-4">
+                <span className="text-sm text-gray-700">
+                  {user?.nombre || user?.email}
+                </span>
+                <button
+                  onClick={handleLogout}
+                  className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </nav>
 
       {/* Main Content */}
-      <main>{children}</main>
+      <main className="max-w-7xl mx-auto px-2 sm:px-3 lg:px-4 py-4">
+        {children}
+      </main>
     </div>
   );
 }
