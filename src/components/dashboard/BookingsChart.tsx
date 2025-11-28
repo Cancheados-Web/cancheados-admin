@@ -1,18 +1,17 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-interface RevenueChartProps {
+interface BookingsChartProps {
   data: Array<{
     month: string;
-    revenue: number;
     booking_count: number;
   }>;
 }
 
-export default function RevenueChart({ data }: RevenueChartProps) {
+export default function BookingsChart({ data }: BookingsChartProps) {
   if (!data || data.length === 0) {
     return (
       <div className="flex items-center justify-center h-64 text-gray-500">
-        No revenue data available
+        No bookings data available
       </div>
     );
   }
@@ -35,41 +34,18 @@ export default function RevenueChart({ data }: RevenueChartProps) {
             textAnchor="end"
             height={60}
           />
-          <YAxis
-            yAxisId="left"
+          <YAxis 
             tick={{ fontSize: 12 }}
-            label={{ value: 'Revenue ($)', angle: -90, position: 'insideLeft' }}
+            label={{ value: 'Number of Bookings', angle: -90, position: 'insideLeft' }}
           />
-          <YAxis
-            yAxisId="right"
-            orientation="right"
-            tick={{ fontSize: 12 }}
-            label={{ value: 'Bookings', angle: 90, position: 'insideRight' }}
-          />
-          <Tooltip
-            formatter={(value: number, name: string) => {
-              if (name === 'Revenue') {
-                return [`$${value.toLocaleString()}`, 'Revenue'];
-              }
-              return [value, 'Bookings'];
-            }}
+          <Tooltip 
+            formatter={(value: number) => [value, 'Bookings']}
           />
           <Legend />
-          <Line
-            yAxisId="left"
-            type="monotone"
-            dataKey="revenue"
-            stroke="#10b981"
-            strokeWidth={2}
-            name="Revenue"
-            dot={{ r: 4 }}
-            activeDot={{ r: 6 }}
-          />
-          <Line
-            yAxisId="right"
-            type="monotone"
-            dataKey="booking_count"
-            stroke="#f97316"
+          <Line 
+            type="monotone" 
+            dataKey="booking_count" 
+            stroke="#f97316" 
             strokeWidth={2}
             name="Bookings"
             dot={{ r: 4 }}

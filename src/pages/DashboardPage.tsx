@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { dashboardApi } from '../lib/api/dashboard';
 import type { DashboardStats, ActivityItem } from '../lib/api/dashboard';
-// import { reportsApi, RevenueReport } from '../lib/api/reports';
+import { reportsApi } from '../lib/api/reports';
+import type { RevenueReport } from '../lib/api/reports';
 import StatsCard from '../components/dashboard/StatsCard';
-// import RevenueChart from '../components/dashboard/RevenueChart';
+import RevenueChart from '../components/dashboard/RevenueChart';
 import ActivityFeed from '../components/dashboard/ActivityFeed';
 import QuickActions from '../components/dashboard/QuickActions';
 import Card from '../components/common/Card';
@@ -12,7 +13,7 @@ import LoadingSpinner from '../components/common/LoadingSpinner';
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [activity, setActivity] = useState<ActivityItem[]>([]);
-  // const [revenueData, setRevenueData] = useState<RevenueReport[]>([]);
+  const [revenueData, setRevenueData] = useState<RevenueReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,18 +26,21 @@ export default function DashboardPage() {
       setLoading(true);
       setError(null);
       
-      const [statsData, activityData] = await Promise.all([
+      const [statsData, activityData, revenueDataResponse] = await Promise.all([
         dashboardApi.getStats(),
         dashboardApi.getActivity(10),
-        // reportsApi.getRevenue()
+        reportsApi.getRevenue()
       ]);
       
       setStats(statsData);
       setActivity(activityData);
-      // setRevenueData(revenueDataResponse.map(item => ({
-      //   ...item,
-      //   revenue: parseFloat(item.revenue)
-      // })));
+      const processedRevenue = revenueDataResponse.map(item => ({
+        ...item,
+        revenue: parseFloat(item.revenue)
+      }));
+      console.log('Revenue data received:', revenueDataResponse);
+      console.log('Processed revenue data:', processedRevenue);
+      setRevenueData(processedRevenue);
     } catch (err) {
       console.error('Failed to load dashboard:', err);
       setError('Failed to load dashboard data. Please try again.');
@@ -160,10 +164,8 @@ export default function DashboardPage() {
       {/* Charts and Actions Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         <div className="lg:col-span-2">
-          <Card title="Revenue Trends (Last 12 Months)">
-            <div className="flex items-center justify-center h-64 text-gray-500">
-              Chart temporarily disabled for testing
-            </div>
+          <Card title="Revenue & Bookings Trends (Last 12 Months)">
+            <RevenueChart data={revenueData} />
           </Card>
         </div>
         
