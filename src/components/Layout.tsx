@@ -15,6 +15,9 @@ export default function Layout({ children }: LayoutProps) {
     if (path === '/disputes') {
       return location.pathname.startsWith('/disputes');
     }
+    if (path === '/audit-logs') {
+      return location.pathname.startsWith('/audit-logs');
+    }
     return location.pathname === path;
   };
 
@@ -36,16 +39,6 @@ export default function Layout({ children }: LayoutProps) {
                 </h1>
               </div>
               <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                <Link
-                  to="/disputes"
-                  className={`${
-                    isActive('/disputes')
-                      ? 'border-indigo-500 text-gray-900'
-                      : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
-                  } inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
-                >
-                  Disputes
-                </Link>
                 <Link
                   to="/"
                   className={`${
@@ -85,6 +78,36 @@ export default function Layout({ children }: LayoutProps) {
                   } inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
                 >
                   Venues
+                </Link>
+                <Link
+                  to="/disputes"
+                  className={`${
+                    isActive('/disputes')
+                      ? 'border-indigo-500 text-gray-900'
+                      : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                  } inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
+                >
+                  Disputes
+                </Link>
+                <Link
+                  to="/reports"
+                  className={`${
+                    isActive('/reports')
+                      ? 'border-indigo-500 text-gray-900'
+                      : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                  } inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
+                >
+                  Reports
+                </Link>
+                <Link
+                  to="/audit-logs"
+                  className={`${
+                    isActive('/audit-logs')
+                      ? 'border-indigo-500 text-gray-900'
+                      : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                  } inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
+                >
+                  Audit Logs
                 </Link>
               </div>
             </div>
