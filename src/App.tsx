@@ -10,6 +10,8 @@ import TeamsPage from './pages/TeamsPage';
 import VenuesPage from './pages/VenuesPage';
 import DisputesPage from './pages/DisputesPage';
 import DisputeDetailPage from './pages/DisputeDetailPage';
+import ReportsPage from './pages/ReportsPage';
+import AuditLogsPage from './pages/AuditLogsPage';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -88,6 +90,26 @@ function App() {
                 <ProtectedRoute>
                   <Layout>
                     <DisputeDetailPage />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/reports"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <ReportsPage />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/audit-logs"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <AuditLogsPage />
                   </Layout>
                 </ProtectedRoute>
               }
