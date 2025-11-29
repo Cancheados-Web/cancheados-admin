@@ -12,6 +12,7 @@ import DisputesPage from './pages/DisputesPage';
 import DisputeDetailPage from './pages/DisputeDetailPage';
 import ReportsPage from './pages/ReportsPage';
 import AuditLogsPage from './pages/AuditLogsPage';
+import TestReportPage from './pages/TestReportPage';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -110,6 +111,16 @@ function App() {
                 <ProtectedRoute>
                   <Layout>
                     <AuditLogsPage />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/test-report"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <TestReportPage />
                   </Layout>
                 </ProtectedRoute>
               }

@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "vitest --coverage"
+    "test": "vitest run --coverage && node scripts/generate-test-report.js",
+    "test:report": "node scripts/generate-test-report.js"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.11",
