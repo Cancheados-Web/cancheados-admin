@@ -6,7 +6,10 @@ import type {
   ApiError
 } from './types';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_URL =
+  import.meta.env.VITE_PUBLIC_API_URL ||
+  import.meta.env.VITE_API_URL ||
+  'http://localhost:3001';
 
 // =====================================================
 // AXIOS INSTANCE CONFIGURATION
