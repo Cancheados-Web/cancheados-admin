@@ -10,7 +10,14 @@ export default defineConfig({
     css: false,
     coverage: {
       provider: 'v8',
-      reports: ['text', 'html']
+      reports: ['text', 'html'],
+      exclude: [
+        '**/node_modules/**',
+        'postcss.config.js',
+        'tailwind.config.js',
+        'scripts/generate-test-report.js',
+        'src/lib/types.ts'
+      ]
     }
   }
 });
